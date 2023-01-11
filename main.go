@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -53,6 +54,27 @@ func main() {
 	}()
 
 	mux := http.NewServeMux()
+	mux.Handle("/assets/", http.FileServer(http.FS(assets)))
+	mux.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "image/x-icon")
+		w.Header().Set("Cache-Control", "public, max-age=86400")
+		w.Header().Set("Expires", time.Now().Add(24*time.Hour).Format(http.TimeFormat))
+
+		f, err := assets.Open("assets/favicon.ico")
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		defer f.Close()
+
+		b, err := io.ReadAll(f)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		w.Write(b)
+	})
 	mux.HandleFunc("/healthcheck/", func(w http.ResponseWriter, r *http.Request) {
 		// TODO: check if database is up
 		w.Header().Set("Content-Type", "application/json")
@@ -63,7 +85,6 @@ func main() {
 		w.Write([]byte(`{"status": "ok"}`))
 
 	})
-	mux.Handle("/assets/", http.FileServer(http.FS(assets)))
 	mux.HandleFunc("/test/", func(w http.ResponseWriter, r *http.Request) {
 
 		w.Write([]byte(fmt.Sprintf("url: %s", r.URL.Path)))
