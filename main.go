@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"time"
 
 	"crg.eti.br/go/mooca/config"
 	"crg.eti.br/go/mooca/session"
-	"github.com/gorilla/mux"
 )
 
 var (
@@ -19,6 +19,10 @@ var (
 	//go:embed assets
 	assets embed.FS
 )
+
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("login"))
+}
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	sid, sd, ok := sc.Get(r)
@@ -29,8 +33,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 	// renew session
 	sc.Save(w, sid, sd)
-
-	http.Redirect(w, r, "/payments", http.StatusFound)
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func main() {
@@ -49,12 +52,19 @@ func main() {
 		os.Exit(0)
 	}()
 
-	r := mux.NewRouter()
-	r.HandleFunc("/", homeHandler)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", homeHandler)
+	mux.HandleFunc("/login", loginHandler)
+	mux.Handle("/assets/", http.FileServer(http.FS(assets)))
 
-	r.PathPrefix("/assets/").Handler(http.FileServer(http.FS(assets)))
+	s := &http.Server{
+		Handler:        mux,
+		Addr:           fmt.Sprintf(":%d", cfg.Port),
+		ReadTimeout:    5 * time.Second,
+		WriteTimeout:   5 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
 
 	log.Printf("Listening on port %d\n", cfg.Port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", cfg.Port), r))
-
+	log.Fatal(s.ListenAndServe())
 }

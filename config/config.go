@@ -6,7 +6,7 @@ import (
 )
 
 type Config struct {
-	Port string `json:"port" ini:"port" cfg:"port" cfgDefault:"2211"`
+	Port int `json:"port" ini:"port" cfg:"port" cfgDefault:"2211"`
 }
 
 func Load() (Config, error) {
