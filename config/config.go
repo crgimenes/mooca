@@ -6,7 +6,8 @@ import (
 )
 
 type Config struct {
-	Port int `json:"port" ini:"port" cfg:"port" cfgDefault:"2211"`
+	Port        int    `json:"port" ini:"port" cfg:"port" cfgDefault:"2211"`
+	DatabaseURL string `json:"database_url" ini:"database_url" cfg:"database_url" cfgDefault:"postgres://postgres:postgres@localhost:5432/mooca?sslmode=disable"`
 }
 
 func Load() (Config, error) {
