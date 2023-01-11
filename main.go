@@ -53,6 +53,16 @@ func main() {
 	}()
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("/healthcheck/", func(w http.ResponseWriter, r *http.Request) {
+		// TODO: check if database is up
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+		w.Header().Set("Pragma", "no-cache")
+		w.Header().Set("Expires", "0")
+
+		w.Write([]byte(`{"status": "ok"}`))
+
+	})
 	mux.Handle("/assets/", http.FileServer(http.FS(assets)))
 	mux.HandleFunc("/test/", func(w http.ResponseWriter, r *http.Request) {
 
