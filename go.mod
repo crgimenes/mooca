@@ -2,7 +2,12 @@ module crg.eti.br/go/mooca
 
 go 1.19
 
-require crg.eti.br/go/config v1.4.10
+require (
+	crg.eti.br/go/config v1.4.10
+	github.com/gorilla/mux v1.8.0
+	github.com/jmoiron/sqlx v1.3.5
+	github.com/lib/pq v1.10.7
+)
 
 require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
