@@ -53,9 +53,14 @@ func main() {
 	}()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", homeHandler)
-	mux.HandleFunc("/login", loginHandler)
 	mux.Handle("/assets/", http.FileServer(http.FS(assets)))
+	mux.HandleFunc("/test/", func(w http.ResponseWriter, r *http.Request) {
+
+		w.Write([]byte(fmt.Sprintf("url: %s", r.URL.Path)))
+	})
+
+	mux.HandleFunc("/login/", loginHandler)
+	mux.HandleFunc("/", homeHandler)
 
 	s := &http.Server{
 		Handler:        mux,
