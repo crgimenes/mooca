@@ -6,12 +6,11 @@ import (
 )
 
 type Config struct {
-	Listen string `json:"listen" ini:"listen" cfg:"listen" cfgDefault:"0.0.0.0:2211"`
+	Port string `json:"port" ini:"port" cfg:"port" cfgDefault:"2211"`
 }
 
 func Load() (Config, error) {
 	var cfg = Config{}
-	config.PrefixEnv = "MOOCA"
 	config.File = "config.ini"
 	err := config.Parse(&cfg)
 	if err != nil {
