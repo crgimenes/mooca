@@ -21,3 +21,5 @@ test
 .DS_Store
 notes.md
 mooca.db
+env.sh
+
