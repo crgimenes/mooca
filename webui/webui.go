@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"crg.eti.br/go/mooca/session"
@@ -70,13 +71,28 @@ func Mux(mux *http.ServeMux) *http.ServeMux {
 	mux.Handle("/assets/", http.FileServer(http.FS(assets)))
 	mux.HandleFunc("/favicon.ico", handleIcon)
 	mux.HandleFunc("/healthcheck/", healthcheckHandler)
-	mux.HandleFunc("/test/", func(w http.ResponseWriter, r *http.Request) {
-
-		w.Write([]byte(fmt.Sprintf("url: %s", r.URL.Path)))
-	})
-
 	mux.HandleFunc("/login/", loginHandler)
 	mux.HandleFunc("/", homeHandler)
+
+	mux.HandleFunc("/test/", func(w http.ResponseWriter, r *http.Request) {
+
+		w.Write([]byte(fmt.Sprintf("url: %s\r\n", r.URL.Path)))
+
+		path := strings.TrimPrefix(r.URL.Path, "/test/")
+		path = strings.TrimSuffix(path, "/")
+		w.Write([]byte(fmt.Sprintf("path: %s\r\n", path)))
+
+		parameters := strings.Split(path, "/")
+		for i, parameter := range parameters {
+			w.Write([]byte(fmt.Sprintf("parameter %d: %s\r\n", i, parameter)))
+		}
+
+		for key, values := range r.URL.Query() {
+			for _, value := range values {
+				w.Write([]byte(fmt.Sprintf("parameter %s: %s\r\n", key, value)))
+			}
+		}
+	})
 
 	return mux
 }

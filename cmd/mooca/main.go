@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"time"
 
+	"crg.eti.br/go/mooca/api"
 	"crg.eti.br/go/mooca/config"
 	"crg.eti.br/go/mooca/webui"
 )
@@ -30,6 +31,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux = webui.Mux(mux)
+	mux = api.Mux(mux)
 
 	s := &http.Server{
 		Handler:        mux,
