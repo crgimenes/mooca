@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"errors"
+	"fmt"
 	"log"
 
 	"crg.eti.br/go/mooca/config"
@@ -21,6 +22,8 @@ var (
 
 	// go:embed migration01.sql
 	migration01 string
+
+	tablePrefix = "mooca_"
 )
 
 type Database struct {
@@ -64,13 +67,17 @@ func (d *Database) VerifyMigration() (int, error) {
 		lastMigration int
 		count         int
 	)
-	err := d.db.Get(&count, `SELECT COUNT(*) FROM migrations`)
+	sql := `SELECT COUNT(*) FROM %smigrations`
+	sql = fmt.Sprintf(sql, tablePrefix)
+	err := d.db.Get(&count, sql)
 	if err != nil {
 		return 0, err
 	}
 	log.Printf("migrations: %d", count)
 	if count != 0 {
-		err = d.db.Get(&lastMigration, "SELECT MAX(id) as max FROM migrations")
+		sql = `SELECT MAX(id) as max FROM %smigrations`
+		sql = fmt.Sprintf(sql, tablePrefix)
+		err = d.db.Get(&lastMigration, sql)
 		if err != nil {
 			return 0, err
 		}
@@ -115,14 +122,24 @@ func (d *Database) RunMigration() error {
 	switch lastMigration {
 	case 0:
 		log.Println("running migration 1")
-		_, err = tx.Exec(migration01)
+		migration := migration01
+		migration = fmt.Sprintf(migration,
+			tablePrefix, // 1
+			tablePrefix, // 2
+			tablePrefix, // 3
+			tablePrefix, // 4
+			tablePrefix, // 5
+		)
+		_, err = tx.Exec(migration)
 		if err != nil {
 			_ = tx.Rollback()
 			return err
 		}
 
 		// update migration table
-		_, err = tx.Exec(`INSERT INTO migrations (id) VALUES (1)`)
+		sql := `INSERT INTO %smigrations (id) VALUES (1)`
+		sql = fmt.Sprintf(sql, tablePrefix)
+		_, err = tx.Exec(sql)
 		if err != nil {
 			_ = tx.Rollback()
 			return err
