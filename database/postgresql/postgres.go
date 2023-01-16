@@ -67,7 +67,7 @@ func (d *Database) VerifyMigration() (int, error) {
 		lastMigration int
 		count         int
 	)
-	sql := `SELECT COUNT(*) FROM %smigrations`
+	sql := `SELECT COUNT(*) FROM %s_migrations`
 	sql = fmt.Sprintf(sql, tablePrefix)
 	err := d.db.Get(&count, sql)
 	if err != nil {
@@ -75,7 +75,7 @@ func (d *Database) VerifyMigration() (int, error) {
 	}
 	log.Printf("migrations: %d", count)
 	if count != 0 {
-		sql = `SELECT MAX(id) as max FROM %smigrations`
+		sql = `SELECT MAX(id) as max FROM %s_migrations`
 		sql = fmt.Sprintf(sql, tablePrefix)
 		err = d.db.Get(&lastMigration, sql)
 		if err != nil {
@@ -137,7 +137,7 @@ func (d *Database) RunMigration() error {
 		}
 
 		// update migration table
-		sql := `INSERT INTO %smigrations (id) VALUES (1)`
+		sql := `INSERT INTO %s_migrations (id) VALUES (1)`
 		sql = fmt.Sprintf(sql, tablePrefix)
 		_, err = tx.Exec(sql)
 		if err != nil {
