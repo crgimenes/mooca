@@ -73,9 +73,14 @@ func Mux(mux *http.ServeMux) *http.ServeMux {
 	mux.HandleFunc("/healthcheck/", healthcheckHandler)
 	mux.HandleFunc("/login/", loginHandler)
 	mux.HandleFunc("/", homeHandler)
+	mux.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("/test")
+		w.Write([]byte(fmt.Sprintf("url: %s\r\n", r.URL.Path)))
+
+	})
 
 	mux.HandleFunc("/test/", func(w http.ResponseWriter, r *http.Request) {
-
+		fmt.Println("/test/")
 		w.Write([]byte(fmt.Sprintf("url: %s\r\n", r.URL.Path)))
 
 		path := strings.TrimPrefix(r.URL.Path, "/test/")
