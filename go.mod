@@ -1,10 +1,10 @@
 module crg.eti.br/go/mooca
 
-go 1.21
+go 1.22
 
 require (
-	crg.eti.br/go/config v1.4.13
-	github.com/jmoiron/sqlx v1.3.5
+	crg.eti.br/go/config v1.5.0
+	github.com/jmoiron/sqlx v1.4.0
 	github.com/lib/pq v1.10.9
 )
 
